@@ -1,0 +1,2348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apache Airflow 3.x — Complete Beginner to Intermediate Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0f1a;
+    --bg2: #111520;
+    --bg3: #161b2e;
+    --bg4: #1d2438;
+    --panel: #1a2035;
+    --accent: #00d4aa;
+    --accent2: #7c6af7;
+    --accent3: #f7a23c;
+    --accent4: #e85d8a;
+    --text: #e8ecf4;
+    --text2: #9aa5c0;
+    --text3: #5d6a8a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(0,212,170,0.25);
+    --code-bg: #0a0e18;
+    --success: #00d4aa;
+    --warn: #f7a23c;
+    --danger: #e85d8a;
+    --info: #7c6af7;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Sora', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0 0 2rem;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-logo {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+  }
+  .sidebar-logo .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #00d4aa15, #7c6af715);
+    border: 1px solid var(--border2);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .sidebar-logo .logo-badge span { color: var(--accent2); }
+  .sidebar-logo p { font-size: 11px; color: var(--text3); margin-top: 6px; }
+  .nav-section { padding: 0.5rem 1rem; margin-bottom: 0.25rem; }
+  .nav-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0.5rem 0.25rem;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.15s;
+    margin-bottom: 1px;
+  }
+  .nav-link:hover, .nav-link.active {
+    background: rgba(0,212,170,0.08);
+    color: var(--accent);
+  }
+  .nav-link .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text3);
+    flex-shrink: 0;
+  }
+  .nav-link:hover .dot, .nav-link.active .dot { background: var(--accent); }
+
+  /* ── Main ── */
+  .main {
+    margin-left: 260px;
+    padding: 0;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 5rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,212,170,0.07) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 20%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,106,247,0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 1.25rem;
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+  .hero h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+    background: linear-gradient(135deg, #e8ecf4 30%, #7c6af7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 17px;
+    color: var(--text2);
+    max-width: 640px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+  .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tag {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-teal { background: rgba(0,212,170,0.1); color: var(--accent); border: 1px solid rgba(0,212,170,0.2); }
+  .tag-purple { background: rgba(124,106,247,0.1); color: var(--accent2); border: 1px solid rgba(124,106,247,0.2); }
+  .tag-amber { background: rgba(247,162,60,0.1); color: var(--accent3); border: 1px solid rgba(247,162,60,0.2); }
+
+  /* ── Content area ── */
+  .content {
+    padding: 3rem 4rem;
+    max-width: 900px;
+  }
+
+  /* ── Sections ── */
+  .section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.15), rgba(124,106,247,0.15));
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .section-title-block h2 {
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .section-title-block p {
+    font-size: 13px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 2rem 0 0.75rem;
+  }
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 1.5rem 0 0.5rem;
+    font-family: var(--mono);
+  }
+  p { color: var(--text2); margin-bottom: 1rem; line-height: 1.75; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { padding-left: 1.5rem; color: var(--text2); margin-bottom: 1rem; }
+  li { margin-bottom: 0.4rem; line-height: 1.7; }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 1.25rem 0;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .d-red { background: #e85d8a; }
+  .d-yellow { background: #f7a23c; }
+  .d-green { background: #00d4aa; }
+  pre {
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  code { font-family: var(--mono); font-size: 0.9em; }
+  p code, li code {
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.15);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  /* Syntax colors */
+  .kw { color: #7c6af7; }
+  .fn { color: #00d4aa; }
+  .st { color: #f7a23c; }
+  .cm { color: #4a5570; font-style: italic; }
+  .kv { color: #e85d8a; }
+  .nm { color: #a8f0e8; }
+  .de { color: #c9b8ff; }
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body p { margin: 0; font-size: 14px; line-height: 1.65; }
+  .callout-body strong { font-weight: 600; }
+  .callout-tip { background: rgba(0,212,170,0.06); border: 1px solid rgba(0,212,170,0.18); }
+  .callout-tip .callout-icon { color: var(--accent); }
+  .callout-tip .callout-body p { color: #a8f0e8; }
+  .callout-warn { background: rgba(247,162,60,0.06); border: 1px solid rgba(247,162,60,0.18); }
+  .callout-warn .callout-icon { color: var(--accent3); }
+  .callout-warn .callout-body p { color: #f7d49a; }
+  .callout-info { background: rgba(124,106,247,0.06); border: 1px solid rgba(124,106,247,0.18); }
+  .callout-info .callout-icon { color: var(--accent2); }
+  .callout-info .callout-body p { color: #c9b8ff; }
+  .callout-danger { background: rgba(232,93,138,0.06); border: 1px solid rgba(232,93,138,0.18); }
+  .callout-danger .callout-icon { color: var(--danger); }
+  .callout-danger .callout-body p { color: #f5b3c8; }
+
+  /* ── Concept cards ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 1.5rem 0;
+  }
+  .concept-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem;
+    transition: border-color 0.2s;
+  }
+  .concept-card:hover { border-color: var(--border2); }
+  .concept-card .c-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .concept-card h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 6px;
+    font-family: var(--sans);
+  }
+  .concept-card p { font-size: 12px; color: var(--text3); margin: 0; line-height: 1.55; }
+
+  /* ── Architecture diagram ── */
+  .arch-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    overflow-x: auto;
+    line-height: 1.9;
+  }
+  .arch-box {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 12px;
+  }
+  .arch-teal { background: rgba(0,212,170,0.12); color: var(--accent); border: 1px solid rgba(0,212,170,0.25); }
+  .arch-purple { background: rgba(124,106,247,0.12); color: var(--accent2); border: 1px solid rgba(124,106,247,0.25); }
+  .arch-amber { background: rgba(247,162,60,0.12); color: var(--accent3); border: 1px solid rgba(247,162,60,0.25); }
+  .arch-pink { background: rgba(232,93,138,0.12); color: var(--accent4); border: 1px solid rgba(232,93,138,0.25); }
+  .arch-arrow { color: var(--text3); }
+
+  /* ── Step sequence ── */
+  .steps { margin: 1.5rem 0; }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .step::before {
+    content: '';
+    position: absolute;
+    left: 15px; top: 32px;
+    width: 1px;
+    height: calc(100% + 8px);
+    background: var(--border);
+  }
+  .step:last-child::before { display: none; }
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .step-body h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 4px;
+    font-family: var(--sans);
+  }
+  .step-body p { font-size: 13px; color: var(--text2); margin: 0 0 6px; }
+
+  /* ── UI Screenshots described ── */
+  .ui-panel {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+  .ui-panel-bar {
+    background: var(--bg4);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ui-panel-bar .bar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .ui-panel-bar .bar-url {
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--code-bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: var(--mono);
+  }
+  .ui-panel-content { padding: 1.5rem; }
+  .ui-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--code-bg);
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  .ui-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-success { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .badge-fail { background: rgba(232,93,138,0.12); color: var(--danger); }
+  .badge-run { background: rgba(124,106,247,0.12); color: var(--accent2); }
+  .badge-skip { background: rgba(247,162,60,0.12); color: var(--accent3); }
+  .ui-dag-name { color: var(--accent); font-weight: 500; flex: 1; }
+  .ui-meta { color: var(--text3); font-size: 11px; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 13px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--bg4);
+    color: var(--text2);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  td code { font-size: 12px; }
+
+  /* ── TOC badge ── */
+  .toc-badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 600;
+    vertical-align: middle;
+  }
+  .toc-new { background: rgba(0,212,170,0.12); color: var(--accent); }
+  .toc-adv { background: rgba(124,106,247,0.12); color: var(--accent2); }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0.75rem 0 1rem;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* ── DAG flow visual ── */
+  .dag-flow {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .dag-node {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .dn-teal { background: rgba(0,212,170,0.1); color: var(--accent); border-color: rgba(0,212,170,0.3); }
+  .dn-purple { background: rgba(124,106,247,0.1); color: var(--accent2); border-color: rgba(124,106,247,0.3); }
+  .dn-amber { background: rgba(247,162,60,0.1); color: var(--accent3); border-color: rgba(247,162,60,0.3); }
+  .dn-pink { background: rgba(232,93,138,0.1); color: var(--accent4); border-color: rgba(232,93,138,0.3); }
+  .dag-arrow { color: var(--text3); font-size: 16px; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 4rem;
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .footer p { font-size: 12px; color: var(--text3); margin: 0; }
+  .footer a { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .hero { padding: 2.5rem 1.5rem; }
+    .hero h1 { font-size: 2rem; }
+    .content { padding: 2rem 1.5rem; }
+    .footer { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════ SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">✦ Apache <span>Airflow</span> 3.x</div>
+    <p>Beginner → Intermediate Guide</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Getting Started</div>
+    <a href="#what-is" class="nav-link"><span class="dot"></span> What is Airflow?</a>
+    <a href="#architecture" class="nav-link"><span class="dot"></span> Architecture</a>
+    <a href="#installation" class="nav-link"><span class="dot"></span> Installation</a>
+    <a href="#first-run" class="nav-link"><span class="dot"></span> First Run</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Core Concepts</div>
+    <a href="#dags" class="nav-link"><span class="dot"></span> DAGs</a>
+    <a href="#operators" class="nav-link"><span class="dot"></span> Operators</a>
+    <a href="#tasks" class="nav-link"><span class="dot"></span> Tasks &amp; Dependencies</a>
+    <a href="#taskflow" class="nav-link"><span class="dot"></span> TaskFlow API <span class="toc-new" style="font-size:9px; background:rgba(0,212,170,0.12); color:#00d4aa; padding:1px 5px; border-radius:3px; font-weight:600">3.x</span></a>
+    <a href="#sensors" class="nav-link"><span class="dot"></span> Sensors</a>
+    <a href="#xcoms" class="nav-link"><span class="dot"></span> XComs</a>
+    <a href="#variables" class="nav-link"><span class="dot"></span> Variables &amp; Connections</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Scheduling</div>
+    <a href="#scheduling" class="nav-link"><span class="dot"></span> Schedules &amp; Cron</a>
+    <a href="#assets" class="nav-link"><span class="dot"></span> Asset-driven Scheduling <span class="toc-new" style="font-size:9px; background:rgba(0,212,170,0.12); color:#00d4aa; padding:1px 5px; border-radius:3px; font-weight:600">3.x</span></a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">UI &amp; Monitoring</div>
+    <a href="#ui-guide" class="nav-link"><span class="dot"></span> Web UI Walkthrough</a>
+    <a href="#monitoring" class="nav-link"><span class="dot"></span> Monitoring &amp; Logs</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Intermediate</div>
+    <a href="#executors" class="nav-link"><span class="dot"></span> Executors</a>
+    <a href="#hooks" class="nav-link"><span class="dot"></span> Hooks &amp; Providers</a>
+    <a href="#docker-dag" class="nav-link"><span class="dot"></span> Docker with Airflow</a>
+    <a href="#real-world" class="nav-link"><span class="dot"></span> Real-world ETL Example</a>
+    <a href="#best-practices" class="nav-link"><span class="dot"></span> Best Practices</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">New in 3.x</div>
+    <a href="#airflow3-new" class="nav-link"><span class="dot"></span> Airflow 3.x Features</a>
+    <a href="#resources" class="nav-link"><span class="dot"></span> Resources</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════ MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">✦ Complete Tutorial Guide</div>
+    <h1>Apache Airflow 3.x</h1>
+    <p>A comprehensive guide to authoring, scheduling, and monitoring workflows — from your first DAG to production-grade pipelines. Updated for Airflow 3.0+ with the new React UI, TaskFlow API, and asset-driven scheduling.</p>
+    <div class="hero-tags">
+      <span class="tag tag-teal">✓ Airflow 3.0–3.2</span>
+      <span class="tag tag-purple">✓ Beginner → Intermediate</span>
+      <span class="tag tag-amber">✓ Code Examples Included</span>
+    </div>
+  </section>
+
+  <!-- ════════════════════════ CONTENT -->
+  <div class="content">
+
+    <!-- ──────────── SECTION 1: WHAT IS AIRFLOW -->
+    <section class="section" id="what-is">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <div class="section-title-block">
+          <h2>What is Apache Airflow?</h2>
+          <p>Understanding the platform and its role in data engineering</p>
+        </div>
+      </div>
+
+      <p>Apache Airflow is an <strong>open-source workflow orchestration platform</strong> that allows you to programmatically author, schedule, and monitor complex data pipelines. Originally created at Airbnb in 2014, it's now part of the Apache Software Foundation and used by 80,000+ organizations worldwide with over 30 million monthly downloads.</p>
+
+      <p>The core idea: instead of writing brittle shell scripts or using rigid GUI tools, you define your workflows as <strong>Python code</strong>. This gives you version control, testing, reusability, and the full power of Python's ecosystem.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">🚀</div>
+        <div class="callout-body">
+          <p><strong>Airflow 3.0 (released April 22, 2025)</strong> is the biggest release in Airflow's history — bringing a service-oriented architecture, a new React-based UI, DAG versioning, asset-driven scheduling, and a Task Execution API enabling tasks to run in any language or environment.</p>
+        </div>
+      </div>
+
+      <h3>What Airflow is great for</h3>
+      <div class="card-grid">
+        <div class="concept-card">
+          <div class="c-icon">🔄</div>
+          <h4>ETL / ELT Pipelines</h4>
+          <p>Extract, transform, load data across databases, warehouses, and APIs reliably.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">🤖</div>
+          <h4>MLOps Workflows</h4>
+          <p>Schedule model training, evaluation, and deployment pipelines. 30%+ of users use Airflow for ML.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">⏰</div>
+          <h4>Scheduled Jobs</h4>
+          <p>Replace cron jobs with dependency-aware, monitored, retryable tasks.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">📊</div>
+          <h4>Data Quality</h4>
+          <p>Run validation checks, generate reports, and trigger alerts automatically.</p>
+        </div>
+      </div>
+
+      <h3>What Airflow is NOT</h3>
+      <ul>
+        <li>❌ <strong>Not a data streaming tool</strong> — use Kafka or Flink for real-time processing</li>
+        <li>❌ <strong>Not a data storage solution</strong> — it orchestrates pipelines, doesn't hold your data</li>
+        <li>❌ <strong>Not a compute engine</strong> — it delegates actual computation to other systems (Spark, dbt, Python, etc.)</li>
+      </ul>
+
+    </section>
+
+    <!-- ──────────── SECTION 2: ARCHITECTURE -->
+    <section class="section" id="architecture">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <div class="section-title-block">
+          <h2>Airflow Architecture</h2>
+          <p>The components that make Airflow tick</p>
+        </div>
+      </div>
+
+      <p>Airflow 3.x uses a <strong>service-oriented architecture</strong> with clearly separated components that can scale independently. Here's how the pieces fit together:</p>
+
+      <div class="arch-diagram">
+        <div style="text-align:center; margin-bottom:1.5rem;">
+          <span style="color:var(--text3); font-size:11px; text-transform:uppercase; letter-spacing:0.1em;">Airflow 3.x Architecture Overview</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:16px; align-items:center;">
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;">
+            <span class="arch-box arch-purple">DAG Author (You)</span>
+            <span style="color:var(--text3)">writes Python DAGs</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-box arch-teal">DAGs Folder</span>
+          </div>
+
+          <div style="color:var(--text3); text-align:center; font-size:11px;">↓ parsed by</div>
+
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;">
+            <span class="arch-box arch-amber">Scheduler</span>
+            <span style="color:var(--text3); font-size:12px;">triggers tasks based on schedules &amp; dependencies</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-box arch-teal">Executor</span>
+          </div>
+
+          <div style="color:var(--text3); text-align:center; font-size:11px;">↓ dispatches to</div>
+
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;">
+            <span class="arch-box arch-pink">Workers</span>
+            <span style="color:var(--text3); font-size:12px;">actually run task code</span>
+          </div>
+
+          <div style="color:var(--text3); text-align:center; font-size:11px;">all components read/write to</div>
+
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;">
+            <span class="arch-box arch-teal">Metadata DB (PostgreSQL/MySQL)</span>
+            <span style="color:var(--text3)">+</span>
+            <span class="arch-box arch-purple">API Server (New in 3.x)</span>
+          </div>
+
+          <div style="color:var(--text3); text-align:center; font-size:11px;">monitored via</div>
+
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center;">
+            <span class="arch-box arch-amber">Web UI (React)</span>
+            <span style="color:var(--text3)">+</span>
+            <span class="arch-box arch-pink">REST API</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>Core components</h3>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Role</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Scheduler</code></td><td>Parses DAGs, triggers task runs</td><td>Can run with HA in 3.x</td></tr>
+          <tr><td><code>Web Server / UI</code></td><td>React-based dashboard for monitoring</td><td>Fully rebuilt in 3.0</td></tr>
+          <tr><td><code>API Server</code></td><td>Stable REST API for all operations</td><td>New in Airflow 3.x (AIP-72)</td></tr>
+          <tr><td><code>Executor</code></td><td>Decides how/where tasks run</td><td>Local, Celery, K8s, Edge</td></tr>
+          <tr><td><code>Worker</code></td><td>Executes the actual task code</td><td>Multiple workers = parallelism</td></tr>
+          <tr><td><code>Metadata DB</code></td><td>Stores DAG runs, task states, logs</td><td>PostgreSQL recommended</td></tr>
+          <tr><td><code>Message Broker</code></td><td>Queue for Celery Executor</td><td>Redis or RabbitMQ</td></tr>
+        </tbody>
+      </table>
+
+    </section>
+
+    <!-- ──────────── SECTION 3: INSTALLATION -->
+    <section class="section" id="installation">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <div class="section-title-block">
+          <h2>Installation</h2>
+          <p>Three methods: pip (local), Docker Compose (recommended), or Docker custom image</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body">
+          <p><strong>Prerequisites:</strong> Python 3.10–3.14 (3.12 recommended), pip or uv, at least 4GB RAM. Windows users must use WSL2. Airflow 3.x officially supports pip and uv — Poetry/pip-tools are not supported.</p>
+        </div>
+      </div>
+
+      <h3>Method 1 — pip (Local / Virtual Env)</h3>
+      <p>The simplest way to get started on Linux/macOS. Uses constraint files to guarantee reproducibility.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">bash</span>
+        </div>
+        <pre><span class="cm"># 1. Create and activate a virtual environment</span>
+python3 -m venv airflow_env
+source airflow_env/bin/activate   <span class="cm"># Windows WSL: same command</span>
+
+<span class="cm"># 2. Set version variables</span>
+<span class="kv">AIRFLOW_VERSION</span>=3.0.2
+<span class="kv">PYTHON_VERSION</span>=<span class="st">"$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"</span>
+<span class="kv">CONSTRAINT_URL</span>=<span class="st">"https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"</span>
+
+<span class="cm"># 3. Install Airflow with constraints (ensures compatible dependency versions)</span>
+pip install <span class="st">"apache-airflow==${AIRFLOW_VERSION}"</span> --constraint <span class="st">"${CONSTRAINT_URL}"</span>
+
+<span class="cm"># 4. Initialize the database &amp; create admin user</span>
+airflow db migrate
+airflow users create \
+  --username admin \
+  --firstname Admin \
+  --lastname User \
+  --role Admin \
+  --email admin@example.com \
+  --password admin
+
+<span class="cm"># 5. Start the standalone server (for local dev — runs scheduler + webserver)</span>
+airflow standalone</pre>
+      </div>
+
+      <p>Open <code>http://localhost:8080</code> and log in with <strong>admin / admin</strong>.</p>
+
+      <h3>Method 2 — Docker Compose (Recommended for teams &amp; exploration)</h3>
+      <p>Docker Compose spins up the full Airflow stack with Celery workers, Postgres, Redis, and the webserver in a single command. Requires Docker Desktop with at least 4–8 GB RAM allocated.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">bash</span>
+        </div>
+        <pre><span class="cm"># 1. Download the official docker-compose.yaml</span>
+mkdir airflow-project &amp;&amp; cd airflow-project
+curl -LfO <span class="st">'https://airflow.apache.org/docs/apache-airflow/3.0.2/docker-compose.yaml'</span>
+
+<span class="cm"># 2. Create required directories</span>
+mkdir -p ./dags ./logs ./plugins ./config
+
+<span class="cm"># 3. Set your user ID (Linux/macOS) — avoids file permission issues</span>
+echo -e <span class="st">"AIRFLOW_UID=$(id -u)"</span> > .env
+
+<span class="cm"># 4. Initialize the database</span>
+docker compose up airflow-init
+
+<span class="cm"># 5. Start all services</span>
+docker compose up -d
+
+<span class="cm"># Useful commands</span>
+docker compose ps          <span class="cm"># check status</span>
+docker compose logs -f     <span class="cm"># tail all logs</span>
+docker compose down        <span class="cm"># stop everything</span></pre>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <p>Place your DAG files in the <code>./dags/</code> folder. Airflow will automatically detect and load them within a minute. No restart needed.</p>
+        </div>
+      </div>
+
+      <h3>Method 3 — Custom Docker Image</h3>
+      <p>When you need extra Python packages on top of the base Airflow image:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">dockerfile</span>
+        </div>
+        <pre><span class="cm"># Dockerfile</span>
+<span class="kw">FROM</span> <span class="st">apache/airflow:3.0.2</span>
+
+<span class="cm"># Switch to root for system packages</span>
+<span class="kw">USER</span> root
+<span class="kw">RUN</span> apt-get update &amp;&amp; apt-get install -y build-essential libssl-dev
+
+<span class="cm"># Back to airflow user for pip installs</span>
+<span class="kw">USER</span> airflow
+<span class="kw">COPY</span> requirements.txt /requirements.txt
+<span class="kw">RUN</span> pip install --no-cache-dir -r /requirements.txt</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">text — requirements.txt</span>
+        </div>
+        <pre>apache-airflow-providers-postgres==5.13.1
+apache-airflow-providers-http==4.12.0
+pandas==2.2.0
+requests==2.31.0</pre>
+      </div>
+
+      <p>Then in your <code>docker-compose.yaml</code>, set <code>image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.0.2}</code> and run <code>docker compose build</code> before <code>docker compose up</code>.</p>
+
+    </section>
+
+    <!-- ──────────── SECTION 4: FIRST RUN -->
+    <section class="section" id="first-run">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <div class="section-title-block">
+          <h2>Your First DAG</h2>
+          <p>Hello World — writing and running your first workflow</p>
+        </div>
+      </div>
+
+      <p>A <strong>DAG (Directed Acyclic Graph)</strong> is how you define a workflow in Airflow. Each node in the graph is a task; edges define the execution order. Create this file in your <code>dags/</code> folder:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python — dags/hello_world.py</span>
+        </div>
+        <pre><span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">import</span> pendulum
+<span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag, task  <span class="cm"># Airflow 3.x import path</span>
+
+<span class="de">@dag</span>(
+    dag_id=<span class="st">"hello_world"</span>,
+    schedule=<span class="kv">None</span>,               <span class="cm"># trigger manually</span>
+    start_date=pendulum.datetime(<span class="nm">2024</span>, <span class="nm">1</span>, <span class="nm">1</span>, tz=<span class="st">"UTC"</span>),
+    catchup=<span class="kv">False</span>,
+    tags=[<span class="st">"tutorial"</span>],
+    description=<span class="st">"My first Airflow DAG"</span>,
+)
+<span class="kw">def</span> <span class="fn">hello_world</span>():
+    <span class="st">"""A simple example DAG to demonstrate Airflow basics."""</span>
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">greet</span>():
+        <span class="kw">print</span>(<span class="st">"👋 Hello from Airflow 3.x!"</span>)
+        <span class="kw">return</span> <span class="st">"Hello"</span>
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">world</span>(message: str):
+        <span class="kw">print</span>(f<span class="st">"🌍 World says: {message} World!"</span>)
+
+    <span class="cm"># Chain tasks: greet runs first, its return value passes to world</span>
+    world(greet())
+
+
+<span class="cm"># Instantiate the DAG</span>
+hello_world_dag = <span class="fn">hello_world</span>()</pre>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-body">
+          <p><strong>Airflow 3.x import change:</strong> Most core objects (<code>dag</code>, <code>task</code>, <code>DAG</code>) now come from <code>airflow.sdk</code> rather than <code>airflow</code> or <code>airflow.decorators</code>. Both still work during migration, but <code>airflow.sdk</code> is the new canonical path.</p>
+        </div>
+      </div>
+
+      <p>Now go to <code>http://localhost:8080</code>, find <strong>hello_world</strong> in the DAGs list, toggle it on, and click the ▶ "Trigger DAG" button. Watch it run in the Graph or Grid view!</p>
+
+    </section>
+
+    <!-- ──────────── SECTION 5: DAGS -->
+    <section class="section" id="dags">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <div class="section-title-block">
+          <h2>DAGs — Deep Dive</h2>
+          <p>Directed Acyclic Graphs: the heart of every Airflow workflow</p>
+        </div>
+      </div>
+
+      <p>A DAG defines the <em>structure</em> of your workflow — which tasks exist and in what order they run. It is <strong>Directed</strong> (tasks flow in one direction), <strong>Acyclic</strong> (no loops — a task can't depend on its own future output), and a <strong>Graph</strong> (nodes connected by edges).</p>
+
+      <h3>DAG parameters</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag
+<span class="kw">import</span> pendulum
+
+<span class="de">@dag</span>(
+    dag_id=<span class="st">"my_pipeline"</span>,          <span class="cm"># unique identifier</span>
+    description=<span class="st">"ETL pipeline"</span>,       <span class="cm"># shown in UI</span>
+    schedule=<span class="st">"@daily"</span>,              <span class="cm"># cron or preset (see below)</span>
+    start_date=pendulum.datetime(<span class="nm">2024</span>, <span class="nm">1</span>, <span class="nm">1</span>, tz=<span class="st">"UTC"</span>),
+    catchup=<span class="kv">False</span>,                   <span class="cm"># don't backfill missed runs</span>
+    max_active_runs=<span class="nm">1</span>,             <span class="cm"># max concurrent dag runs</span>
+    max_active_tasks=<span class="nm">5</span>,            <span class="cm"># max tasks running at once</span>
+    default_args={                   <span class="cm"># applied to all tasks</span>
+        <span class="st">"owner"</span>: <span class="st">"data-team"</span>,
+        <span class="st">"retries"</span>: <span class="nm">2</span>,
+        <span class="st">"retry_delay"</span>: timedelta(minutes=<span class="nm">5</span>),
+        <span class="st">"email_on_failure"</span>: <span class="kv">True</span>,
+        <span class="st">"email"</span>: [<span class="st">"alerts@company.com"</span>],
+    },
+    tags=[<span class="st">"etl"</span>, <span class="st">"production"</span>],
+)
+<span class="kw">def</span> <span class="fn">my_pipeline</span>():
+    ...</pre>
+      </div>
+
+      <h3>Schedule presets</h3>
+      <table>
+        <thead><tr><th>Preset</th><th>Equivalent Cron</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>@once</code></td><td>—</td><td>Run exactly once</td></tr>
+          <tr><td><code>@hourly</code></td><td><code>0 * * * *</code></td><td>Every hour at :00</td></tr>
+          <tr><td><code>@daily</code></td><td><code>0 0 * * *</code></td><td>Every day at midnight</td></tr>
+          <tr><td><code>@weekly</code></td><td><code>0 0 * * 0</code></td><td>Every Sunday at midnight</td></tr>
+          <tr><td><code>@monthly</code></td><td><code>0 0 1 * *</code></td><td>First day of each month</td></tr>
+          <tr><td><code>None</code></td><td>—</td><td>Manual trigger only</td></tr>
+          <tr><td><code>"0 6 * * MON-FRI"</code></td><td>Custom</td><td>Weekdays at 6am</td></tr>
+        </tbody>
+      </table>
+
+      <h3>DAG versioning (New in Airflow 3.x)</h3>
+      <p>Airflow 3.0 introduced <strong>DAG versioning</strong> — the system now tracks changes to DAGs over time. When you modify a DAG's structure (add/remove tasks, change dependencies), Airflow creates a new version and keeps the history, so past runs still link to the correct DAG structure. This is visible in the UI under the DAG's version history tab.</p>
+
+    </section>
+
+    <!-- ──────────── SECTION 6: OPERATORS -->
+    <section class="section" id="operators">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <div class="section-title-block">
+          <h2>Operators</h2>
+          <p>Pre-built task templates — the building blocks of pipelines</p>
+        </div>
+      </div>
+
+      <p>An <strong>Operator</strong> is a template that defines a single unit of work. Airflow ships with 900+ operators across 70+ providers. There are three main categories:</p>
+
+      <div class="card-grid">
+        <div class="concept-card">
+          <div class="c-icon">⚡</div>
+          <h4>Action Operators</h4>
+          <p>Execute something: run Python code, a Bash command, an SQL query, or an HTTP request.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">🔁</div>
+          <h4>Transfer Operators</h4>
+          <p>Move data between systems. E.g., S3 to Snowflake, PostgreSQL to BigQuery.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">⏳</div>
+          <h4>Sensor Operators</h4>
+          <p>Wait for a condition before proceeding. E.g., file exists, HTTP endpoint returns 200.</p>
+        </div>
+      </div>
+
+      <h3>Common built-in operators</h3>
+
+      <h4>BashOperator</h4>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.operators.bash <span class="kw">import</span> BashOperator
+
+run_etl_script = BashOperator(
+    task_id=<span class="st">"run_etl"</span>,
+    bash_command=<span class="st">"python /opt/scripts/etl.py --date {{ ds }}"</span>,
+    <span class="cm"># {{ ds }} is a Jinja template variable = execution date (YYYY-MM-DD)</span>
+)</pre>
+      </div>
+
+      <h4>PythonOperator (classic style)</h4>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.operators.python <span class="kw">import</span> PythonOperator
+
+<span class="kw">def</span> <span class="fn">my_function</span>(**context):
+    execution_date = context[<span class="st">"ds"</span>]
+    <span class="kw">print</span>(f<span class="st">"Running for: {execution_date}"</span>)
+    <span class="kw">return</span> <span class="st">"result_value"</span>
+
+run_python = PythonOperator(
+    task_id=<span class="st">"process_data"</span>,
+    python_callable=my_function,
+    <span class="cm"># op_kwargs={"custom_param": "value"}  # optional keyword args</span>
+)</pre>
+      </div>
+
+      <h4>EmailOperator</h4>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.operators.email <span class="kw">import</span> EmailOperator
+
+send_report = EmailOperator(
+    task_id=<span class="st">"send_daily_report"</span>,
+    to=[<span class="st">"team@company.com"</span>],
+    subject=<span class="st">"Daily Report - {{ ds }}"</span>,
+    html_content=<span class="st">"&lt;h1&gt;Pipeline completed for {{ ds }}&lt;/h1&gt;"</span>,
+)</pre>
+      </div>
+
+      <h4>BranchPythonOperator — conditional logic</h4>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.operators.python <span class="kw">import</span> BranchPythonOperator
+
+<span class="kw">def</span> <span class="fn">choose_path</span>(**context):
+    hour = context[<span class="st">"logical_date"</span>].hour
+    <span class="kw">if</span> hour < <span class="nm">12</span>:
+        <span class="kw">return</span> <span class="st">"morning_task"</span>   <span class="cm"># returns task_id to run next</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="st">"evening_task"</span>
+
+branch = BranchPythonOperator(
+    task_id=<span class="st">"decide_path"</span>,
+    python_callable=choose_path,
+)
+
+branch >> [morning_task, evening_task]</pre>
+      </div>
+
+      <h3>Provider operators (installing extras)</h3>
+      <p>Install the relevant provider package to unlock cloud and service operators:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">bash</span>
+        </div>
+        <pre><span class="cm"># AWS S3, Redshift, Glue</span>
+pip install apache-airflow-providers-amazon
+
+<span class="cm"># Google Cloud (BigQuery, GCS, Dataflow)</span>
+pip install apache-airflow-providers-google
+
+<span class="cm"># PostgreSQL</span>
+pip install apache-airflow-providers-postgres
+
+<span class="cm"># HTTP requests</span>
+pip install apache-airflow-providers-http
+
+<span class="cm"># dbt (data build tool)</span>
+pip install apache-airflow-providers-dbt-cloud</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 7: TASKS & DEPENDENCIES -->
+    <section class="section" id="tasks">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <div class="section-title-block">
+          <h2>Tasks &amp; Dependencies</h2>
+          <p>Wiring tasks together to form a pipeline</p>
+        </div>
+      </div>
+
+      <p>Tasks are instances of operators. You control execution order using dependency operators.</p>
+
+      <h3>Setting dependencies</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="cm"># >> means "runs before"</span>
+extract >> transform >> load
+
+<span class="cm"># Multiple dependencies (fan-out)</span>
+extract >> [transform_a, transform_b]
+
+<span class="cm"># Multiple upstream tasks (fan-in)</span>
+[transform_a, transform_b] >> load
+
+<span class="cm"># Or use set_downstream / set_upstream explicitly</span>
+extract.set_downstream(transform)
+transform.set_upstream(extract)   <span class="cm"># equivalent</span>
+
+<span class="cm"># Complex diamond pattern</span>
+extract >> [transform_a, transform_b]
+[transform_a, transform_b] >> validate >> load</pre>
+      </div>
+
+      <h3>Visualizing the dependency graph</h3>
+      <div class="dag-flow">
+        <span class="dag-node dn-teal">extract</span>
+        <span class="dag-arrow">→</span>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span class="dag-node dn-purple">transform_a</span>
+          <span class="dag-node dn-purple">transform_b</span>
+        </div>
+        <span class="dag-arrow">→</span>
+        <span class="dag-node dn-amber">validate</span>
+        <span class="dag-arrow">→</span>
+        <span class="dag-node dn-pink">load</span>
+      </div>
+
+      <h3>Task states</h3>
+      <table>
+        <thead><tr><th>State</th><th>Color in UI</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>queued</code></td><td>Gray</td><td>Waiting for an executor slot</td></tr>
+          <tr><td><code>running</code></td><td>Lime green</td><td>Currently executing</td></tr>
+          <tr><td><code>success</code></td><td>Dark green</td><td>Completed successfully</td></tr>
+          <tr><td><code>failed</code></td><td>Red</td><td>Raised an exception</td></tr>
+          <tr><td><code>up_for_retry</code></td><td>Yellow</td><td>Failed, waiting to retry</td></tr>
+          <tr><td><code>skipped</code></td><td>Pink/purple</td><td>Skipped by branching logic</td></tr>
+          <tr><td><code>upstream_failed</code></td><td>Orange</td><td>Blocked by a failed upstream task</td></tr>
+        </tbody>
+      </table>
+
+    </section>
+
+    <!-- ──────────── SECTION 8: TASKFLOW API -->
+    <section class="section" id="taskflow">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <div class="section-title-block">
+          <h2>TaskFlow API</h2>
+          <p>The modern Pythonic way to write DAGs — recommended in Airflow 3.x</p>
+        </div>
+      </div>
+
+      <p>The <strong>TaskFlow API</strong> (introduced in Airflow 2.0, fully matured in 3.x) uses Python decorators to define DAGs and tasks. It handles XCom passing, task ID generation, and dependency tracking automatically — resulting in dramatically cleaner code.</p>
+
+      <h3>Classic vs TaskFlow: the same pipeline</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python — ❌ Classic (verbose)</span>
+        </div>
+        <pre><span class="kw">from</span> airflow <span class="kw">import</span> DAG
+<span class="kw">from</span> airflow.operators.python <span class="kw">import</span> PythonOperator
+<span class="kw">import</span> pendulum, json
+
+<span class="kw">def</span> <span class="fn">extract</span>(**ctx):
+    data = {<span class="st">"1001"</span>: <span class="nm">301.27</span>, <span class="st">"1002"</span>: <span class="nm">433.87</span>}
+    ctx[<span class="st">"ti"</span>].xcom_push(key=<span class="st">"data"</span>, value=json.dumps(data))
+
+<span class="kw">def</span> <span class="fn">transform</span>(**ctx):
+    raw = ctx[<span class="st">"ti"</span>].xcom_pull(key=<span class="st">"data"</span>, task_ids=<span class="st">"extract"</span>)
+    data = json.loads(raw)
+    total = sum(data.values())
+    ctx[<span class="st">"ti"</span>].xcom_push(key=<span class="st">"total"</span>, value=total)
+
+<span class="kw">with</span> DAG(<span class="st">"etl_classic"</span>, ...) <span class="kw">as</span> dag:
+    t1 = PythonOperator(task_id=<span class="st">"extract"</span>, python_callable=extract)
+    t2 = PythonOperator(task_id=<span class="st">"transform"</span>, python_callable=transform)
+    t1 >> t2</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python — ✅ TaskFlow API (clean)</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag, task
+<span class="kw">import</span> pendulum
+
+<span class="de">@dag</span>(
+    schedule=<span class="st">"@daily"</span>,
+    start_date=pendulum.datetime(<span class="nm">2024</span>, <span class="nm">1</span>, <span class="nm">1</span>, tz=<span class="st">"UTC"</span>),
+    catchup=<span class="kv">False</span>,
+)
+<span class="kw">def</span> <span class="fn">etl_taskflow</span>():
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">extract</span>() -> dict:
+        <span class="cm"># Return value is automatically pushed to XCom</span>
+        <span class="kw">return</span> {<span class="st">"1001"</span>: <span class="nm">301.27</span>, <span class="st">"1002"</span>: <span class="nm">433.87</span>}
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">transform</span>(order_data: dict) -> float:
+        <span class="cm"># order_data is automatically pulled from upstream XCom</span>
+        <span class="kw">return</span> sum(order_data.values())
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">load</span>(total: float):
+        <span class="kw">print</span>(f<span class="st">"Total revenue: ${total:.2f}"</span>)
+        <span class="cm"># Write to database, S3, etc.</span>
+
+    <span class="cm"># Chain: Python function calls = task dependencies</span>
+    order_data = <span class="fn">extract</span>()
+    total = <span class="fn">transform</span>(order_data)
+    <span class="fn">load</span>(total)
+
+
+etl_dag = <span class="fn">etl_taskflow</span>()</pre>
+      </div>
+
+      <h3>Accessing context variables in TaskFlow</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.models.taskinstance <span class="kw">import</span> TaskInstance
+<span class="kw">from</span> airflow.models.dagrun <span class="kw">import</span> DagRun
+
+<span class="de">@task</span>()
+<span class="kw">def</span> <span class="fn">use_context</span>(task_instance: TaskInstance, dag_run: DagRun):
+    <span class="kw">print</span>(f<span class="st">"Run ID: {task_instance.run_id}"</span>)
+    <span class="kw">print</span>(f<span class="st">"Execution date: {dag_run.logical_date}"</span>)</pre>
+      </div>
+
+      <h3>Task decorators (Airflow 3.x)</h3>
+      <table>
+        <thead><tr><th>Decorator</th><th>Use case</th></tr></thead>
+        <tbody>
+          <tr><td><code>@task</code></td><td>Standard Python task</td></tr>
+          <tr><td><code>@task.virtualenv</code></td><td>Run in isolated virtualenv with custom deps</td></tr>
+          <tr><td><code>@task.docker</code></td><td>Run inside a Docker container</td></tr>
+          <tr><td><code>@task.kubernetes</code></td><td>Run in a Kubernetes Pod</td></tr>
+          <tr><td><code>@task.sensor</code></td><td>Create a sensor from a function</td></tr>
+          <tr><td><code>@task.branch</code></td><td>Branching task — return task_id(s) to run next</td></tr>
+          <tr><td><code>@task.short_circuit</code></td><td>Skip all downstream if returns False</td></tr>
+        </tbody>
+      </table>
+
+    </section>
+
+    <!-- ──────────── SECTION 9: SENSORS -->
+    <section class="section" id="sensors">
+      <div class="section-header">
+        <div class="section-num">09</div>
+        <div class="section-title-block">
+          <h2>Sensors</h2>
+          <p>Waiting for external events before proceeding</p>
+        </div>
+      </div>
+
+      <p>Sensors are special operators that <strong>keep polling</strong> until a condition is met. They're perfect for waiting on files, API responses, database records, or other DAG completions.</p>
+
+      <h3>FileSensor — wait for a file to appear</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sensors.filesystem <span class="kw">import</span> FileSensor
+
+wait_for_data = FileSensor(
+    task_id=<span class="st">"wait_for_csv"</span>,
+    filepath=<span class="st">"/data/input/sales_{{ ds_nodash }}.csv"</span>,
+    poke_interval=<span class="nm">60</span>,            <span class="cm"># check every 60 seconds</span>
+    timeout=<span class="nm">3600</span>,               <span class="cm"># fail after 1 hour</span>
+    mode=<span class="st">"reschedule"</span>,          <span class="cm"># ⭐ releases worker slot between pokes</span>
+)
+
+wait_for_data >> process_file   <span class="cm"># only runs after file appears</span></pre>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body">
+          <p><strong>Always use <code>mode="reschedule"</code></strong> in production sensors. In <code>poke</code> mode (default) the worker process sleeps and holds its slot. In <code>reschedule</code> mode, the worker is freed between polls, which is much more efficient at scale.</p>
+        </div>
+      </div>
+
+      <h3>ExternalTaskSensor — wait for another DAG</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sensors.external_task <span class="kw">import</span> ExternalTaskSensor
+
+wait_for_upstream = ExternalTaskSensor(
+    task_id=<span class="st">"wait_for_ingestion"</span>,
+    external_dag_id=<span class="st">"data_ingestion"</span>,
+    external_task_id=<span class="st">"validate"</span>,   <span class="cm"># None = wait for whole DAG</span>
+    mode=<span class="st">"reschedule"</span>,
+    poke_interval=<span class="nm">120</span>,
+)</pre>
+      </div>
+
+      <h3>Custom sensor with @task.sensor</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag, task
+<span class="kw">from</span> airflow.sdk <span class="kw">import</span> PokeReturnValue
+<span class="kw">import</span> requests
+
+<span class="de">@dag</span>(schedule=<span class="kv">None</span>, ...)
+<span class="kw">def</span> <span class="fn">api_workflow</span>():
+
+    <span class="de">@task.sensor</span>(poke_interval=<span class="nm">60</span>, timeout=<span class="nm">3600</span>, mode=<span class="st">"reschedule"</span>)
+    <span class="kw">def</span> <span class="fn">wait_for_api_ready</span>() -> PokeReturnValue:
+        resp = requests.get(<span class="st">"https://api.example.com/status"</span>)
+        is_ready = resp.json().get(<span class="st">"status"</span>) == <span class="st">"ready"</span>
+        <span class="kw">return</span> PokeReturnValue(is_done=is_ready, xcom_value=resp.json())
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">process</span>(api_info: dict):
+        <span class="kw">print</span>(f<span class="st">"API is ready: {api_info}"</span>)
+
+    process(wait_for_api_ready())</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 10: XCOMS -->
+    <section class="section" id="xcoms">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <div class="section-title-block">
+          <h2>XComs — Data Passing</h2>
+          <p>Sharing small values between tasks</p>
+        </div>
+      </div>
+
+      <p><strong>XCom</strong> (Cross-Communication) is Airflow's mechanism for passing small pieces of data between tasks. Values are stored in the metadata database, so keep them small — a result ID, a row count, a file path — not a full DataFrame.</p>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body">
+          <p><strong>XCom size limits:</strong> SQLite up to 2GB, PostgreSQL up to 1GB, MySQL up to 64MB. For large data, save to S3/GCS and pass the <em>path</em> via XCom instead.</p>
+        </div>
+      </div>
+
+      <h3>Automatic XCom with TaskFlow</h3>
+      <p>With the <code>@task</code> decorator, any returned value is automatically pushed to XCom, and any function parameter is automatically pulled from the upstream task's XCom:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="de">@task</span>()
+<span class="kw">def</span> <span class="fn">get_record_count</span>() -> int:
+    <span class="kw">return</span> <span class="nm">42500</span>  <span class="cm"># auto-pushed to XCom</span>
+
+<span class="de">@task</span>()
+<span class="kw">def</span> <span class="fn">process_records</span>(count: int):
+    <span class="kw">print</span>(f<span class="st">"Processing {count} records"</span>)
+
+<span class="cm"># The int "42500" flows automatically from get_record_count → process_records</span>
+count = get_record_count()
+process_records(count)</pre>
+      </div>
+
+      <h3>Manual XCom push/pull (classic style)</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">def</span> <span class="fn">push_data</span>(**context):
+    context[<span class="st">"ti"</span>].xcom_push(key=<span class="st">"file_path"</span>, value=<span class="st">"/s3/bucket/output.csv"</span>)
+
+<span class="kw">def</span> <span class="fn">pull_data</span>(**context):
+    path = context[<span class="st">"ti"</span>].xcom_pull(
+        key=<span class="st">"file_path"</span>,
+        task_ids=<span class="st">"upload_task"</span>
+    )
+    <span class="kw">print</span>(f<span class="st">"File available at: {path}"</span>)</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 11: VARIABLES & CONNECTIONS -->
+    <section class="section" id="variables">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <div class="section-title-block">
+          <h2>Variables &amp; Connections</h2>
+          <p>Managing configuration and secrets securely</p>
+        </div>
+      </div>
+
+      <h3>Variables</h3>
+      <p><strong>Airflow Variables</strong> are key-value pairs stored in the metadata database. Use them for configuration values that change between environments (dev/prod) without modifying DAG code.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.models <span class="kw">import</span> Variable
+
+<span class="cm"># Get a variable (with optional default)</span>
+s3_bucket = Variable.get(<span class="st">"s3_bucket_name"</span>, default_var=<span class="st">"my-default-bucket"</span>)
+
+<span class="cm"># Get a JSON variable (auto-deserialized)</span>
+config = Variable.get(<span class="st">"etl_config"</span>, deserialize_json=<span class="kv">True</span>)
+batch_size = config[<span class="st">"batch_size"</span>]
+
+<span class="cm"># Set a variable programmatically</span>
+Variable.set(<span class="st">"last_run_date"</span>, <span class="st">"2024-03-15"</span>)</pre>
+      </div>
+
+      <p>You can also set variables from the CLI or UI: <strong>Admin → Variables</strong>.</p>
+
+      <h3>Connections</h3>
+      <p><strong>Connections</strong> store credentials for external systems (databases, APIs, cloud services). This keeps secrets out of your DAG code. Define them via UI (<strong>Admin → Connections</strong>) or environment variables:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">bash — Environment variable format</span>
+        </div>
+        <pre><span class="cm"># Format: AIRFLOW_CONN_{CONN_ID}=conn_type://user:pass@host:port/schema</span>
+<span class="kw">export</span> AIRFLOW_CONN_MY_POSTGRES=postgresql://user:password@localhost:5432/mydb
+<span class="kw">export</span> AIRFLOW_CONN_MY_S3=aws://AKIAIOSFODNN7EXAMPLE:wJalrXUt@/</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python — Using a connection in a hook</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.providers.postgres.hooks.postgres <span class="kw">import</span> PostgresHook
+
+<span class="de">@task</span>()
+<span class="kw">def</span> <span class="fn">query_database</span>():
+    pg_hook = PostgresHook(postgres_conn_id=<span class="st">"my_postgres"</span>)
+    records = pg_hook.get_records(<span class="st">"SELECT id, name FROM users LIMIT 10"</span>)
+    <span class="kw">return</span> records</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 12: SCHEDULING & ASSETS -->
+    <section class="section" id="scheduling">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <div class="section-title-block">
+          <h2>Scheduling</h2>
+          <p>When and how DAGs run</p>
+        </div>
+      </div>
+
+      <p>Airflow schedules are based on <strong>logical dates</strong> (formerly <em>execution dates</em>). When a DAG with <code>schedule="@daily"</code> runs at midnight on January 2nd, its <code>logical_date</code> is January 1st — Airflow processes the data interval that just ended.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-body">
+          <p><strong>catchup</strong>: If <code>catchup=True</code> (the default) and your <code>start_date</code> is 30 days ago, Airflow will schedule 30 daily runs when you first enable the DAG. Set <code>catchup=False</code> to only run from "now" forward — recommended for most use cases.</p>
+        </div>
+      </div>
+
+      <h3>Jinja Templating in schedules &amp; tasks</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="cm"># {{ ds }} = execution date as YYYY-MM-DD  e.g. "2024-01-15"</span>
+<span class="cm"># {{ ds_nodash }} = "20240115"</span>
+<span class="cm"># {{ ts }} = full ISO timestamp</span>
+<span class="cm"># {{ logical_date }} = pendulum datetime object</span>
+<span class="cm"># {{ next_ds }} = next execution date</span>
+<span class="cm"># {{ dag.dag_id }} = the DAG's ID string</span>
+
+run_query = BashOperator(
+    task_id=<span class="st">"daily_query"</span>,
+    bash_command=<span class="st">"""
+      psql -c "SELECT * FROM events
+               WHERE date = '{{ ds }}'
+               AND batch = '{{ run_id }}'"
+    """</span>,
+)</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 12b: ASSETS -->
+    <section class="section" id="assets">
+      <div class="section-header">
+        <div class="section-num">12b</div>
+        <div class="section-title-block">
+          <h2>Asset-Driven Scheduling</h2>
+          <p>Event-driven workflows triggered by data readiness — new in Airflow 3.x</p>
+        </div>
+      </div>
+
+      <p>In Airflow 3.x, <strong>Assets</strong> (formerly called "Datasets" in 2.x) let you trigger DAGs based on data availability rather than time. A DAG can declare that it <em>produces</em> an asset, and another DAG declares it <em>consumes</em> it — the consumer runs automatically when the producer completes.</p>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">✨</div>
+        <div class="callout-body">
+          <p><strong>Airflow 3.2 added Asset Partitioning</strong> — allowing granular partition-level triggers. A downstream DAG can wait for a <em>specific partition</em> of an asset (e.g. region=US, date=2024-01-15) before running.</p>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python — Producer DAG</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag, task, Asset
+
+<span class="cm"># Define an asset — a logical data resource</span>
+sales_data = Asset(<span class="st">"s3://my-bucket/sales/daily"</span>)
+
+<span class="de">@dag</span>(
+    schedule=<span class="st">"@daily"</span>,
+    start_date=pendulum.datetime(<span class="nm">2024</span>, <span class="nm">1</span>, <span class="nm">1</span>, tz=<span class="st">"UTC"</span>),
+)
+<span class="kw">def</span> <span class="fn">ingest_sales</span>():
+
+    <span class="de">@task</span>(outlets=[sales_data])  <span class="cm"># ← signals this task produces the asset</span>
+    <span class="kw">def</span> <span class="fn">download_and_store</span>():
+        <span class="cm"># Download from source, write to S3...</span>
+        <span class="kw">print</span>(<span class="st">"Sales data written to S3"</span>)
+
+    download_and_store()
+
+ingest_sales()</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python — Consumer DAG (triggered automatically)</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag, task, Asset
+
+sales_data = Asset(<span class="st">"s3://my-bucket/sales/daily"</span>)
+
+<span class="de">@dag</span>(
+    schedule=[sales_data],  <span class="cm"># ← run whenever sales_data is updated</span>
+    start_date=pendulum.datetime(<span class="nm">2024</span>, <span class="nm">1</span>, <span class="nm">1</span>, tz=<span class="st">"UTC"</span>),
+)
+<span class="kw">def</span> <span class="fn">transform_sales</span>():
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">run_transformations</span>():
+        <span class="kw">print</span>(<span class="st">"Sales data is ready — running transforms!"</span>)
+
+    run_transformations()
+
+transform_sales()</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 13: UI GUIDE -->
+    <section class="section" id="ui-guide">
+      <div class="section-header">
+        <div class="section-num">13</div>
+        <div class="section-title-block">
+          <h2>Web UI Walkthrough</h2>
+          <p>Navigating Airflow's React-based UI (new in 3.0)</p>
+        </div>
+      </div>
+
+      <p>Airflow 3.0 ships a <strong>completely rebuilt React-based UI</strong> that replaces the old Flask/Bootstrap interface. It's faster, more responsive, and adds new views like the asset lineage graph.</p>
+
+      <h3>DAG List View — your home base</h3>
+      <div class="ui-panel">
+        <div class="ui-panel-bar">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="bar-title">Airflow Web UI</span>
+          <span class="bar-url">http://localhost:8080/dags</span>
+        </div>
+        <div class="ui-panel-content">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <span style="font-size:13px; font-weight:600; color:var(--text2); font-family:var(--mono)">DAGs</span>
+            <div style="display:flex; gap:8px; font-size:11px; font-family:var(--mono);">
+              <span style="color:var(--text3)">Filter:</span>
+              <span style="background:var(--bg4); padding:2px 8px; border-radius:4px; color:var(--text2)">All</span>
+              <span style="background:var(--bg4); padding:2px 8px; border-radius:4px; color:var(--text2)">Active</span>
+              <span style="background:var(--bg4); padding:2px 8px; border-radius:4px; color:var(--text2)">Paused</span>
+            </div>
+          </div>
+          <div class="ui-row">
+            <span class="ui-dag-name">etl_taskflow</span>
+            <span class="ui-badge badge-success">✓ Success</span>
+            <span class="ui-meta">@daily · Last run: 2min ago</span>
+            <span class="ui-meta">▶ 3 runs</span>
+          </div>
+          <div class="ui-row">
+            <span class="ui-dag-name">ingest_sales</span>
+            <span class="ui-badge badge-run">⟳ Running</span>
+            <span class="ui-meta">@daily · Started: 45s ago</span>
+            <span class="ui-meta">⚡ 2/5 tasks</span>
+          </div>
+          <div class="ui-row">
+            <span class="ui-dag-name">transform_sales</span>
+            <span class="ui-badge badge-run">⟳ Queued</span>
+            <span class="ui-meta">Asset-driven · Waiting for: ingest_sales</span>
+          </div>
+          <div class="ui-row">
+            <span class="ui-dag-name">hello_world</span>
+            <span class="ui-badge badge-skip">⏸ Paused</span>
+            <span class="ui-meta">Manual · Never run</span>
+          </div>
+          <div class="ui-row">
+            <span class="ui-dag-name">daily_report</span>
+            <span class="ui-badge badge-fail">✗ Failed</span>
+            <span class="ui-meta">@daily · Failed: 1hr ago · retries: 2</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>Key views for each DAG</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">G</div>
+          <div class="step-body">
+            <h4>Grid View</h4>
+            <p>Shows a matrix of task runs over time. Rows = tasks, columns = DAG runs. Click any cell to see that task's logs, duration, and XCom values. This is your primary debugging view.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">D</div>
+          <div class="step-body">
+            <h4>Graph View</h4>
+            <p>Visual representation of your DAG's task topology. Shows task nodes, their dependencies, and current run statuses with color coding. Great for understanding pipeline structure.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">G</div>
+          <div class="step-body">
+            <h4>Gantt Chart</h4>
+            <p>Shows task execution timelines side by side. Reveals bottlenecks — which tasks take the longest or are waiting in the queue.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">L</div>
+          <div class="step-body">
+            <h4>Logs View</h4>
+            <p>Click any task instance → "Logs" to see stdout/stderr. Supports log level filtering. Airflow 3.x supports OpenTelemetry traces for distributed tracing.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">A</div>
+          <div class="step-body">
+            <h4>Asset Lineage (New in 3.x)</h4>
+            <p>Shows the full data asset graph — which DAGs produce and consume which assets. Navigate from <strong>Browse → Assets</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3>Actions you can take from the UI</h3>
+      <ul>
+        <li><strong>Trigger DAG</strong> — manually start a DAG run, optionally with custom conf JSON</li>
+        <li><strong>Clear task</strong> — re-run a specific task (or its downstream) in a past run</li>
+        <li><strong>Mark as success/failed</strong> — override a task state without running it</li>
+        <li><strong>Pause/Unpause</strong> — toggle the toggle switch next to a DAG name</li>
+        <li><strong>View code</strong> — inspect the DAG source directly in the UI</li>
+        <li><strong>Browse XComs</strong> — Admin → XComs to inspect all stored values</li>
+      </ul>
+
+    </section>
+
+    <!-- ──────────── SECTION 14: MONITORING -->
+    <section class="section" id="monitoring">
+      <div class="section-header">
+        <div class="section-num">14</div>
+        <div class="section-title-block">
+          <h2>Monitoring &amp; Alerting</h2>
+          <p>Keeping your pipelines healthy in production</p>
+        </div>
+      </div>
+
+      <h3>Email alerts on failure</h3>
+      <p>Configure email in <code>airflow.cfg</code> or environment variables, then use <code>default_args</code>:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre>default_args = {
+    <span class="st">"owner"</span>: <span class="st">"data-team"</span>,
+    <span class="st">"email"</span>: [<span class="st">"oncall@company.com"</span>],
+    <span class="st">"email_on_failure"</span>: <span class="kv">True</span>,
+    <span class="st">"email_on_retry"</span>: <span class="kv">False</span>,
+    <span class="st">"retries"</span>: <span class="nm">3</span>,
+    <span class="st">"retry_delay"</span>: timedelta(minutes=<span class="nm">5</span>),
+    <span class="st">"retry_exponential_backoff"</span>: <span class="kv">True</span>,  <span class="cm"># 5min, 10min, 20min...</span>
+}</pre>
+      </div>
+
+      <h3>on_failure_callback — custom alerting (Slack, PagerDuty)</h3>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">import</span> requests
+
+<span class="kw">def</span> <span class="fn">alert_slack</span>(context):
+    dag_id = context[<span class="st">"dag"</span>].dag_id
+    task_id = context[<span class="st">"task_instance"</span>].task_id
+    log_url = context[<span class="st">"task_instance"</span>].log_url
+    requests.post(<span class="st">"https://hooks.slack.com/services/YOUR/WEBHOOK"</span>, json={
+        <span class="st">"text"</span>: f<span class="st">"❌ Task failed: {dag_id}.{task_id}\nLogs: {log_url}"</span>
+    })
+
+default_args = {
+    <span class="st">"on_failure_callback"</span>: alert_slack,
+    <span class="st">"on_retry_callback"</span>: alert_slack,
+}</pre>
+      </div>
+
+      <h3>Deadline Alerts (Airflow 3.1+ replacement for SLAs)</h3>
+      <p>Airflow 3.0 removed the old SLA feature and replaced it in 3.1 with <strong>Deadline Alerts</strong>. Set a deadline on a DAG run to receive a callback if it hasn't completed by that time:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> datetime <span class="kw">import</span> timedelta
+
+<span class="de">@dag</span>(
+    schedule=<span class="st">"@daily"</span>,
+    <span class="cm"># Raise an alert if the DAG hasn't finished within 2 hours</span>
+    dagrun_timeout=timedelta(hours=<span class="nm">2</span>),
+    on_failure_callback=alert_slack,
+    ...
+)</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 15: EXECUTORS -->
+    <section class="section" id="executors">
+      <div class="section-header">
+        <div class="section-num">15</div>
+        <div class="section-title-block">
+          <h2>Executors</h2>
+          <p>How Airflow runs tasks — local to distributed</p>
+        </div>
+      </div>
+
+      <p>The <strong>Executor</strong> determines where and how tasks run. Choose based on your scale and infrastructure:</p>
+
+      <table>
+        <thead><tr><th>Executor</th><th>Best for</th><th>Requires</th></tr></thead>
+        <tbody>
+          <tr><td><code>LocalExecutor</code></td><td>Single machine, parallelism via subprocesses</td><td>Just Airflow + Postgres</td></tr>
+          <tr><td><code>SequentialExecutor</code></td><td>Development / debugging only (1 task at a time)</td><td>SQLite OK</td></tr>
+          <tr><td><code>CeleryExecutor</code></td><td>Multi-worker horizontal scaling</td><td>Redis or RabbitMQ</td></tr>
+          <tr><td><code>KubernetesExecutor</code></td><td>Cloud-native, one Pod per task</td><td>Kubernetes cluster</td></tr>
+          <tr><td><code>CeleryKubernetesExecutor</code></td><td>Mix of both for different task types</td><td>K8s + Celery</td></tr>
+          <tr><td><code>EdgeExecutor</code> ⭐ 3.x</td><td>Distributed edge-compute, event-driven</td><td>New in Airflow 3.0 (AIP-69)</td></tr>
+        </tbody>
+      </table>
+
+      <p>Set in <code>airflow.cfg</code> or via environment variable:</p>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">bash</span>
+        </div>
+        <pre><span class="cm"># In docker-compose.yaml or .env</span>
+<span class="kv">AIRFLOW__CORE__EXECUTOR</span>=CeleryExecutor
+<span class="kv">AIRFLOW__CELERY__BROKER_URL</span>=redis://redis:6379/0
+<span class="kv">AIRFLOW__CELERY__RESULT_BACKEND</span>=db+postgresql://airflow:airflow@postgres/airflow</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 16: HOOKS & PROVIDERS -->
+    <section class="section" id="hooks">
+      <div class="section-header">
+        <div class="section-num">16</div>
+        <div class="section-title-block">
+          <h2>Hooks &amp; Providers</h2>
+          <p>Reusable connection interfaces to external systems</p>
+        </div>
+      </div>
+
+      <p>A <strong>Hook</strong> is a low-level interface to an external system that handles authentication and connection management. Operators use hooks internally. You can use hooks directly in tasks for fine-grained control.</p>
+
+      <h3>PostgreSQL Hook</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.providers.postgres.hooks.postgres <span class="kw">import</span> PostgresHook
+
+<span class="de">@task</span>()
+<span class="kw">def</span> <span class="fn">run_sql</span>():
+    hook = PostgresHook(postgres_conn_id=<span class="st">"prod_postgres"</span>)
+    
+    <span class="cm"># Get a pandas DataFrame</span>
+    df = hook.get_pandas_df(<span class="st">"SELECT * FROM orders WHERE date = '{{ ds }}'"</span>)
+    
+    <span class="cm"># Run INSERT/UPDATE</span>
+    hook.run(<span class="st">"UPDATE metrics SET processed = True WHERE date = %s"</span>,
+             parameters=[<span class="st">"2024-01-15"</span>])
+    
+    <span class="kw">return</span> len(df)</pre>
+      </div>
+
+      <h3>HTTP Hook</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.providers.http.hooks.http <span class="kw">import</span> HttpHook
+
+<span class="de">@task</span>()
+<span class="kw">def</span> <span class="fn">call_api</span>():
+    hook = HttpHook(method=<span class="st">"GET"</span>, http_conn_id=<span class="st">"my_api"</span>)
+    response = hook.run(
+        endpoint=<span class="st">"/v1/data"</span>,
+        headers={<span class="st">"Authorization"</span>: <span class="st">"Bearer token"</span>},
+    )
+    <span class="kw">return</span> response.json()</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 17: DOCKER DAG -->
+    <section class="section" id="docker-dag">
+      <div class="section-header">
+        <div class="section-num">17</div>
+        <div class="section-title-block">
+          <h2>Running Docker Tasks</h2>
+          <p>Execute tasks in isolated Docker containers</p>
+        </div>
+      </div>
+
+      <p>Use <code>@task.docker</code> or the <code>DockerOperator</code> to run tasks in any Docker image — perfect for isolating dependencies or running non-Python code.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.providers.docker.operators.docker <span class="kw">import</span> DockerOperator
+
+run_spark_job = DockerOperator(
+    task_id=<span class="st">"run_spark"</span>,
+    image=<span class="st">"apache/spark:3.5"</span>,
+    command=<span class="st">"spark-submit /app/job.py --date {{ ds }}"</span>,
+    docker_url=<span class="st">"unix://var/run/docker.sock"</span>,
+    network_mode=<span class="st">"bridge"</span>,
+    auto_remove=<span class="st">"success"</span>,
+    environment={<span class="st">"ENV"</span>: <span class="st">"production"</span>},
+    mounts=[{
+        <span class="st">"source"</span>: <span class="st">"/data/input"</span>,
+        <span class="st">"target"</span>: <span class="st">"/app/data"</span>,
+        <span class="st">"type"</span>: <span class="st">"bind"</span>,
+    }],
+)</pre>
+      </div>
+
+      <h3>@task.docker decorator</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python</span>
+        </div>
+        <pre><span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag, task
+
+<span class="de">@dag</span>(schedule=<span class="kv">None</span>, ...)
+<span class="kw">def</span> <span class="fn">containerized_pipeline</span>():
+
+    <span class="de">@task.docker</span>(image=<span class="st">"python:3.12-slim"</span>, auto_remove=<span class="st">"success"</span>)
+    <span class="kw">def</span> <span class="fn">run_in_container</span>():
+        <span class="cm"># This code runs INSIDE the Python 3.12 container</span>
+        <span class="kw">import</span> pandas <span class="kw">as</span> pd
+        df = pd.DataFrame({<span class="st">"a"</span>: [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]})
+        <span class="kw">print</span>(df.describe())
+
+    run_in_container()</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 18: REAL-WORLD ETL -->
+    <section class="section" id="real-world">
+      <div class="section-header">
+        <div class="section-num">18</div>
+        <div class="section-title-block">
+          <h2>Real-World ETL Example</h2>
+          <p>A complete production-style pipeline with all the pieces</p>
+        </div>
+      </div>
+
+      <p>Let's build a realistic daily ETL pipeline: fetch data from a REST API, validate it, store in PostgreSQL, and send a Slack notification.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">python — dags/daily_sales_etl.py</span>
+        </div>
+        <pre><span class="kw">from</span> __future__ <span class="kw">import</span> annotations
+<span class="kw">import</span> pendulum
+<span class="kw">import</span> requests
+<span class="kw">from</span> datetime <span class="kw">import</span> timedelta
+
+<span class="kw">from</span> airflow.sdk <span class="kw">import</span> dag, task, Asset
+<span class="kw">from</span> airflow.providers.postgres.hooks.postgres <span class="kw">import</span> PostgresHook
+
+<span class="cm"># Define the output asset (for downstream DAGs)</span>
+daily_sales_asset = Asset(<span class="st">"postgresql://prod/sales/daily"</span>)
+
+
+<span class="de">@dag</span>(
+    dag_id=<span class="st">"daily_sales_etl"</span>,
+    description=<span class="st">"Fetch, validate, and store daily sales data"</span>,
+    schedule=<span class="st">"30 6 * * *"</span>,  <span class="cm"># 6:30 AM every day</span>
+    start_date=pendulum.datetime(<span class="nm">2024</span>, <span class="nm">1</span>, <span class="nm">1</span>, tz=<span class="st">"UTC"</span>),
+    catchup=<span class="kv">False</span>,
+    default_args={
+        <span class="st">"owner"</span>: <span class="st">"data-engineering"</span>,
+        <span class="st">"retries"</span>: <span class="nm">2</span>,
+        <span class="st">"retry_delay"</span>: timedelta(minutes=<span class="nm">5</span>),
+        <span class="st">"retry_exponential_backoff"</span>: <span class="kv">True</span>,
+    },
+    tags=[<span class="st">"sales"</span>, <span class="st">"etl"</span>, <span class="st">"production"</span>],
+)
+<span class="kw">def</span> <span class="fn">daily_sales_etl</span>():
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">extract</span>(**context) -> list[dict]:
+        <span class="st">"""Fetch sales records from the REST API."""</span>
+        ds = context[<span class="st">"ds"</span>]
+        resp = requests.get(
+            <span class="st">f"https://api.sales.internal/records?date={ds}"</span>,
+            headers={<span class="st">"Authorization"</span>: <span class="st">"Bearer {{ var.value.api_token }}"</span>},
+            timeout=<span class="nm">30</span>,
+        )
+        resp.raise_for_status()
+        records = resp.json()[<span class="st">"data"</span>]
+        <span class="kw">print</span>(f<span class="st">"Extracted {len(records)} records for {ds}"</span>)
+        <span class="kw">return</span> records
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">validate</span>(records: list[dict]) -> list[dict]:
+        <span class="st">"""Basic data quality checks."""</span>
+        required_fields = {<span class="st">"id"</span>, <span class="st">"amount"</span>, <span class="st">"customer_id"</span>, <span class="st">"product_id"</span>}
+        valid = []
+        errors = <span class="nm">0</span>
+        <span class="kw">for</span> r <span class="kw">in</span> records:
+            <span class="kw">if</span> required_fields.issubset(r.keys()) <span class="kw">and</span> r[<span class="st">"amount"</span>] > <span class="nm">0</span>:
+                valid.append(r)
+            <span class="kw">else</span>:
+                errors += <span class="nm">1</span>
+        <span class="kw">if</span> errors / max(len(records), <span class="nm">1</span>) > <span class="nm">0.05</span>:  <span class="cm"># fail if >5% invalid</span>
+            <span class="kw">raise</span> ValueError(f<span class="st">"Too many invalid records: {errors}"</span>)
+        <span class="kw">print</span>(f<span class="st">"Validation passed: {len(valid)} valid, {errors} skipped"</span>)
+        <span class="kw">return</span> valid
+
+    <span class="de">@task</span>(outlets=[daily_sales_asset])  <span class="cm"># signals asset production</span>
+    <span class="kw">def</span> <span class="fn">load</span>(records: list[dict], **context) -> int:
+        <span class="st">"""Upsert records into PostgreSQL."""</span>
+        ds = context[<span class="st">"ds"</span>]
+        hook = PostgresHook(postgres_conn_id=<span class="st">"prod_postgres"</span>)
+        
+        hook.run(<span class="st">"DELETE FROM sales WHERE date = %s"</span>, parameters=[ds])
+        
+        rows = [(r[<span class="st">"id"</span>], r[<span class="st">"amount"</span>], r[<span class="st">"customer_id"</span>], ds) <span class="kw">for</span> r <span class="kw">in</span> records]
+        hook.insert_rows(
+            <span class="st">"sales"</span>,
+            rows,
+            target_fields=[<span class="st">"id"</span>, <span class="st">"amount"</span>, <span class="st">"customer_id"</span>, <span class="st">"date"</span>],
+        )
+        <span class="kw">print</span>(f<span class="st">"Loaded {len(rows)} records into sales table"</span>)
+        <span class="kw">return</span> len(rows)
+
+    <span class="de">@task</span>()
+    <span class="kw">def</span> <span class="fn">notify</span>(record_count: int, **context):
+        <span class="st">"""Send Slack success notification."""</span>
+        requests.post(<span class="st">"https://hooks.slack.com/services/YOUR/WEBHOOK"</span>, json={
+            <span class="st">"text"</span>: (
+                f<span class="st">"✅ *Daily Sales ETL* completed\n"</span>
+                f<span class="st">"• Date: {context['ds']}\n"</span>
+                f<span class="st">"• Records: {record_count:,}\n"</span>
+                f<span class="st">"• Status: Success"</span>
+            )
+        })
+
+    <span class="cm"># Wire the pipeline together</span>
+    raw_data = <span class="fn">extract</span>()
+    clean_data = <span class="fn">validate</span>(raw_data)
+    count = <span class="fn">load</span>(clean_data)
+    <span class="fn">notify</span>(count)
+
+
+<span class="cm"># Instantiate the DAG</span>
+sales_etl = <span class="fn">daily_sales_etl</span>()</pre>
+      </div>
+
+      <div class="dag-flow" style="margin-top:1.5rem;">
+        <span class="dag-node dn-teal">extract</span>
+        <span class="dag-arrow">→</span>
+        <span class="dag-node dn-purple">validate</span>
+        <span class="dag-arrow">→</span>
+        <span class="dag-node dn-amber">load</span>
+        <span class="dag-arrow">→</span>
+        <span class="dag-node dn-pink">notify</span>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 19: BEST PRACTICES -->
+    <section class="section" id="best-practices">
+      <div class="section-header">
+        <div class="section-num">19</div>
+        <div class="section-title-block">
+          <h2>Best Practices</h2>
+          <p>Writing maintainable, production-grade DAGs</p>
+        </div>
+      </div>
+
+      <h3>DAG authoring</h3>
+      <ul>
+        <li><strong>Use <code>catchup=False</code></strong> by default unless you specifically need backfilling</li>
+        <li><strong>Set <code>start_date</code> as a fixed date</strong>, never <code>datetime.now()</code> — that would create unpredictable schedules</li>
+        <li><strong>Keep tasks atomic</strong> — each task should do one thing. If a task fails, it should be safe to retry</li>
+        <li><strong>Avoid top-level code in DAG files</strong> — imports and database connections at module level slow the Scheduler's DAG parsing loop</li>
+        <li><strong>Use TaskFlow API</strong> for new DAGs — it's cleaner, handles XComs automatically, and is the direction Airflow 3.x is heading</li>
+      </ul>
+
+      <div class="callout callout-danger">
+        <div class="callout-icon">🚫</div>
+        <div class="callout-body">
+          <p><strong>Never do this:</strong> Don't put database connections or HTTP calls at the top level of your DAG file. Every DAG file is parsed by the Scheduler every 30 seconds. Slow top-level code will degrade your entire Airflow installation.</p>
+        </div>
+      </div>
+
+      <h3>Performance</h3>
+      <ul>
+        <li>Use <code>mode="reschedule"</code> for all sensors in production</li>
+        <li>Set <code>max_active_runs</code> to prevent too many concurrent DAG runs</li>
+        <li>Use <code>pool</code> to limit concurrent tasks that share a resource (DB connections, API rate limits)</li>
+        <li>For Celery setups, keep tasks short and parallelizable — avoid single tasks that run for hours</li>
+      </ul>
+
+      <h3>Testing your DAGs</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">bash</span>
+        </div>
+        <pre><span class="cm"># Verify DAG parses without errors</span>
+airflow dags test daily_sales_etl
+
+<span class="cm"># Test a single task without running the full DAG</span>
+airflow tasks test daily_sales_etl extract 2024-01-15
+
+<span class="cm"># List all DAGs (check for import errors)</span>
+airflow dags list
+
+<span class="cm"># Check next scheduled run times</span>
+airflow dags next-execution daily_sales_etl</pre>
+      </div>
+
+      <h3>Pools — rate limiting resource usage</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><div class="code-dot d-red"></div><div class="code-dot d-yellow"></div><div class="code-dot d-green"></div></div>
+          <span class="code-lang">bash + python</span>
+        </div>
+        <pre><span class="cm"># Create a pool (UI: Admin → Pools, or CLI)</span>
+airflow pools set db_pool <span class="nm">5</span> <span class="st">"Limit concurrent DB operations"</span>
+
+<span class="cm"># Use the pool in a task</span>
+<span class="de">@task</span>(pool=<span class="st">"db_pool"</span>)  <span class="cm"># max 5 tasks with this pool run concurrently</span>
+<span class="kw">def</span> <span class="fn">query_database</span>():
+    ...</pre>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 20: AIRFLOW 3.x NEW FEATURES -->
+    <section class="section" id="airflow3-new">
+      <div class="section-header">
+        <div class="section-num">20</div>
+        <div class="section-title-block">
+          <h2>What's New in Airflow 3.x</h2>
+          <p>The landmark changes in the biggest release in Airflow's history</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="concept-card">
+          <div class="c-icon">🏗️</div>
+          <h4>Service-Oriented Architecture</h4>
+          <p>New Task Execution API (AIP-72) enables tasks to run in remote environments with better isolation. API Server now handles all Airflow operations.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">⚛️</div>
+          <h4>New React UI</h4>
+          <p>Fully rebuilt frontend — faster, more responsive, and modernized with asset lineage graphs and better dark mode support.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">📦</div>
+          <h4>DAG Versioning</h4>
+          <p>Structural changes to a DAG now create a new version. Historical runs link to the DAG structure that was in place when they ran.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">🎯</div>
+          <h4>Assets (formerly Datasets)</h4>
+          <p>Renamed and enhanced. Asset-driven scheduling with full lineage tracking. Airflow 3.2 adds partition-level asset triggers.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">🌐</div>
+          <h4>Edge Executor</h4>
+          <p>Run tasks at the edge — distributed, event-driven workflows across geographically distributed environments (AIP-69).</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">🔭</div>
+          <h4>OpenTelemetry</h4>
+          <p>First-class OpenTelemetry traces for distributed tracing across task executions. Integrate with Jaeger, Datadog, or any OTel backend.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">⏭️</div>
+          <h4>Task Decorators</h4>
+          <p><code>@skip_if</code> and <code>@run_if</code> decorators let you conditionally skip tasks based on runtime conditions without boilerplate branching.</p>
+        </div>
+        <div class="concept-card">
+          <div class="c-icon">🛠️</div>
+          <h4>airflow vs airflowctl</h4>
+          <p><code>airflow</code> is for local commands; <code>airflowctl</code> handles remote operations. Cleaner separation between dev and deployment.</p>
+        </div>
+      </div>
+
+      <h3>Migration from Airflow 2.x</h3>
+      <div class="callout callout-warn">
+        <div class="callout-icon">📋</div>
+        <div class="callout-body">
+          <p><strong>Key breaking changes:</strong> Microsoft SQL Server support removed. <code>AirflowTimeoutError</code> no longer caught by default <code>Exception</code>. SLA feature removed (replaced by Deadline Alerts in 3.1). Import paths moved to <code>airflow.sdk</code>. Always review the official <a href="https://airflow.apache.org/docs/apache-airflow/3.0.0/migration-guide.html">Upgrade Guide</a> before migrating.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ──────────── SECTION 21: RESOURCES -->
+    <section class="section" id="resources">
+      <div class="section-header">
+        <div class="section-num">21</div>
+        <div class="section-title-block">
+          <h2>Resources &amp; Next Steps</h2>
+          <p>Where to go from here</p>
+        </div>
+      </div>
+
+      <h3>Official Resources</h3>
+      <ul>
+        <li>📚 <a href="https://airflow.apache.org/docs/apache-airflow/stable/" target="_blank">Official Documentation</a> — airflow.apache.org/docs</li>
+        <li>🚀 <a href="https://airflow.apache.org/docs/apache-airflow/stable/start.html" target="_blank">Quick Start Guide</a></li>
+        <li>🐙 <a href="https://github.com/apache/airflow" target="_blank">GitHub Repository</a> — apache/airflow</li>
+        <li>💬 <a href="https://apache-airflow.slack.com" target="_blank">Airflow Slack Community</a> — 35,000+ members</li>
+        <li>📋 <a href="https://airflow.apache.org/docs/apache-airflow/3.0.0/migration-guide.html" target="_blank">Migration Guide: 2.x → 3.0</a></li>
+      </ul>
+
+      <h3>Learning Path: What to Explore Next</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Dynamic DAGs</h4>
+            <p>Generate tasks at runtime using Python loops and dynamic task mapping (<code>task.expand()</code>) — perfect for processing variable numbers of files or partitions.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Custom Operators &amp; Hooks</h4>
+            <p>Build reusable operators for your internal tools by subclassing <code>BaseOperator</code>. Package them as a provider for your team.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Kubernetes Executor</h4>
+            <p>Deploy Airflow on Kubernetes with Helm charts for auto-scaling, resource isolation, and cloud-native deployments. See <a href="https://airflow.apache.org/docs/helm-chart/stable/index.html">Official Helm Chart docs</a>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Secret Backends</h4>
+            <p>Integrate HashiCorp Vault, AWS Secrets Manager, or GCP Secret Manager for secure credentials management instead of storing secrets in the metadata DB.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h4>dbt + Airflow Integration</h4>
+            <p>Orchestrate dbt models with the <code>apache-airflow-providers-dbt-cloud</code> provider or use <code>BashOperator</code> to run <code>dbt run</code> commands with proper dependency management.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-icon">✨</div>
+        <div class="callout-body">
+          <p><strong>Pro tip:</strong> The Airflow Summit 2025 (October 7–9) is a great way to stay current with best practices from teams running Airflow at scale. Watch past talks at <a href="https://airflowsummit.org">airflowsummit.org</a>.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div><!-- /content -->
+
+  <footer class="footer">
+    <p>
+      Apache Airflow 3.x Guide · Built using
+      <a href="https://airflow.apache.org/docs/apache-airflow/stable/" target="_blank">Official Airflow Documentation</a> ·
+      Covers Airflow 3.0–3.2 · Last updated June 2026
+    </p>
+    <p style="margin-top:6px;">
+      Apache Airflow is a trademark of the Apache Software Foundation. Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.
+    </p>
+  </footer>
+
+</main>
+
+<script>
+  const links = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('.section');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const id = entry.target.id;
+        const active = document.querySelector(`.nav-link[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
